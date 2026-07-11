@@ -23,6 +23,7 @@ def wolves_turn(game):
   
     if villagers:
         target = choose_most_convincing_candidate(villagers)
+        game.log(texts.SERVER_WOLVES_TARGET.format(target_id=target.id))
         game.kill_player(target)
                 
 def update_memory(game, votes):

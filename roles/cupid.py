@@ -15,6 +15,7 @@ class Cupid(Role):
 
         lovers = random.sample(game.alive_players(), 2)
         game.set_lovers(lovers[0], lovers[1])
+        game.log(texts.SERVER_CUPID_LOVERS.format(lover1_id=lovers[0].id, lover2_id=lovers[1].id))
 
         game.suspicion.lock_cell(lovers[0].id, lovers[1].id, 0)
         game.suspicion.lock_cell(lovers[1].id, lovers[0].id, 0)

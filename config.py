@@ -27,5 +27,5 @@ class SimulationParameters:
 
 DEFAULT_PARAMETERS = SimulationParameters()
 USE_SHERIFF = 1
-N_GAMES = 10000
+N_GAMES = 1
 SEED = 42

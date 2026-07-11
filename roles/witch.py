@@ -12,10 +12,13 @@ class Witch(Role):
     def on_night(self, game, player):
         game.log(texts.WITCH_TURN)
 
+        used_potion = False
         wolf_target = game.dead_this_night[0] if game.dead_this_night else None
 
         if self.life_potion_available and wolf_target is not None and (wolf_target is player or wolf_target is game.get_lover(player)):
             self.life_potion_available = False
+            used_potion = True
+            game.log(texts.SERVER_WITCH_SAVE.format(target_id=wolf_target.id))
             game.resurrect_player(wolf_target)
 
         if self.death_potion_available:
@@ -27,4 +30,9 @@ class Witch(Role):
 
                 if suspicion_row[target.id] >= game.params.witch_kill_threshold:
                     self.death_potion_available = False
+                    used_potion = True
+                    game.log(texts.SERVER_WITCH_POISON.format(target_id=target.id))
                     game.kill_player(target)
+
+        if not used_potion:
+            game.log(texts.SERVER_WITCH_NO_ACTION)

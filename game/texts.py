@@ -22,7 +22,16 @@ HUNTER_SHOT = "🎯 PAN ! Le chasseur a décidé d'exécuter le joueur {target_i
 HUNTER_NO_SHOT = "🎯 Par sa toute bonté, le chasseur n'a finalement exécuté personne."
 GAME_OVER = "🏆 La partie est terminée ! Les {winner} ont gagné !"
 
-STATS_TITLE = "📊 WERWOLF SIMULATION RESULTS"
+SERVER_THIEF_SWAP = "ℹ️  Le voleur a échangé sa carte et devient {role_name}."
+SERVER_THIEF_KEEP = "ℹ️  Le voleur a conservé sa carte et devient donc {role_name}."
+SERVER_CUPID_LOVERS = "ℹ️  Cupidon a rendu amoureux les joueurs {lover1_id} et {lover2_id}."
+SERVER_SEER_SPY = "ℹ️  La voyante a espionné le joueur {target_id} ({role_name})."
+SERVER_WOLVES_TARGET = "ℹ️  Les loups-garous ont décidé de dévorer le joueur {target_id}."
+SERVER_WITCH_POISON = "ℹ️  La sorcière a empoisonné le joueur {target_id} avec sa potion de mort."
+SERVER_WITCH_SAVE = "ℹ️  La sorcière a sauvé le joueur {target_id} grâce à sa potion de vie."
+SERVER_WITCH_NO_ACTION = "ℹ️  La sorcière n'a utilisé aucune potion."
+
+STATS_TITLE = "📊 WEREWOLF SIMULATION RESULTS"
 STATS_FACTION = "Faction"
 STATS_WINS = "Wins"
 STATS_WIN_RATE = "Win rate"

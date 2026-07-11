@@ -20,6 +20,8 @@ class Thief(Role):
 
         if chosen_role_index is None:
             player.role = Villager()
+            game.log(texts.SERVER_THIEF_KEEP.format(role_name=player.role.__class__.__name__))
             return
 
         player.role, game.remaining_roles[chosen_role_index] = game.remaining_roles[chosen_role_index], player.role
+        game.log(texts.SERVER_THIEF_SWAP.format(role_name=player.role.__class__.__name__))
