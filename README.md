@@ -31,25 +31,6 @@ The output depends on `N_GAMES` in `config.py`:
 
 Simulation settings are defined in [`config.py`](config.py).
 
-## 🎯 Optimize simulation constants
-
-The role `character_value` fields are treated as fixed theoretical values from the game rules. The behavioral constants can be tuned with Optuna so simulated win rates better match the theoretical advantage implied by a role distribution.
-
-Install dependencies, then run:
-
-```bash
-python -m optimization.tune_parameters --trials 100 --games-per-config 500
-```
-
-Available options:
-
-* `--trials`: number of Optuna trials to run. More trials give the optimizer more chances to find good constants, but increase runtime.
-* `--games-per-config`: number of simulated games per training configuration and per trial. Higher values reduce random noise, but make each trial slower.
-* `--score-scale`: factor used to convert the theoretical role score into a target advantage with `tanh(score * score_scale)`. Higher values make the target advantage more extreme for the same theoretical score.
-* `--seed`: random seed used by Optuna and the simulator during evaluation. Keeping it fixed makes trials easier to compare; final validation should still be run across several seeds.
-
-The optimizer prints the best constants found and compares them to the default constants.
-
 ### 🃏 Role distribution
 
 `ROLE_COUNTS` controls how many cards of each role are included in a game:
@@ -74,19 +55,11 @@ Set a role count to `0` to disable that role. When the Thief is enabled, two ext
 | Parameter | Description |
 | --- | --- |
 | `N_GAMES` | Number of games to simulate. Use `1` for a detailed game log and a larger value for aggregate statistics. |
-| `ALPHA` | Strength of the influence exerted by players during the debate phase. |
-| `VOTE_NOISE` | Random variation added to accusation scores when players vote. |
-| `GRUDGE_IMMEDIATE_WEIGHT` | Initial weight of a fresh grudge immediately after a player receives a vote. |
-| `CO_VOTE_BETA` | Learning rate used to update the co-vote matrix after each day vote. |
-| `CO_VOTE_ASSOCIATION_THRESHOLD` | Minimum co-vote link required before a dead Werewolf increases suspicion toward a living player. |
-| `CO_VOTE_ASSOCIATION_WEIGHT` | Strength of the suspicion increase caused by association with a revealed dead Werewolf. |
-| `CONVINCE_ROLE_VALUE_WEIGHT` | Strength of the convince update applied to vote intention leaders after a village elimination. |
-| `SUSPICION_ROLE_VALUE_WEIGHT` | Strength of the suspicion update applied to final voters after a village elimination. |
-| `WOLF_TO_WOLF_SUSPICION_RESISTANCE` | Coefficient reducing the impact of suspicion influence from one Werewolf toward another Werewolf. |
+| `SEED` | Seed used to initialize the simulator RNG. With the same seed, repeated simulation runs are reproducible. |
+| `DEBATE_ACTIONS_LAMBDA` | Mean number of debate actions sampled from a Poisson distribution before each daytime vote. |
 | `HUNTER_SHOT_THRESHOLD` | Minimum suspicion score required for the Hunter to shoot another player when dying. |
 | `WITCH_KILL_THRESHOLD` | Minimum suspicion score required for the Witch to use her death potion. |
 | `USE_SHERIFF` | Enables the sheriff election mechanic. Set to `0` to disable it, or `1` to elect a sheriff on the first day. |
-| `SEED` | Reserved random seed setting. It is currently declared but not applied by the simulator. |
 
 ## 🎭 Roles
 
@@ -104,120 +77,172 @@ Set a role count to `0` to disable that role. When the Thief is enabled, two ext
 
 ## 🗳️ Voting and behavior model
 
-The simulator focuses mainly on voting dynamics. Each player has two psychological traits generated at the beginning of the game:
+The simulator focuses mainly on voting dynamics. Each player has two behavioral parameters generated at the beginning of the game:
 
-$$C \sim \mathcal{N}(0, 1)$$
+$$\beta_i \sim \Gamma(4, 0.5)$$
 
-$$P \sim \mathrm{Beta}(2, 3)$$
+where $\beta_i > 0$ controls how sharply player $i$ follows their suspicion scores :
+* low $\beta_i$ makes votes close to random ;
+* high $\beta_i$ makes player $i$ vote almost always against their most suspicious target.
 
-where:
-* $C$ is the player's persuasion score (`convince`) ;
-* $P$ is their paranoia score (`paranoia`), used to model how strongly they remember previous votes against them.
+Each player also has a participation parameter:
 
-### Debate influence
+$$\eta_i \sim \Gamma(4, 0.5)$$
 
-During the day, players first announce an intended target. Each speaker then influences the other players' suspicion toward that target:
+During debate, $\eta_i$ controls how likely player $i$ is to participate in the discussion.
 
-$$I = (C_{speaker} - C_{target}) \times \alpha$$
-
-The resulting influence is added to the listener's suspicion matrix:
-
-$$S_{new} = \max(0, \min(1, S_{old} + I))$$
-
-### Grudge memory
-
-Players also remember who voted against them. This creates a grudge score that decays over time, so recent attacks matter more than old ones:
+The suspicion matrix $S(t)$ contains every player's suspicions at time $t$. Each coefficients $S_{ij}(t)$ represents player $i$'s subjective estimated probability that player $j$ is a Werewolf.
 
 $$
-G = \min\left(1,\sum_{v \in V} P \times D(v)\right)
-$$
-
-where $V$ is the set of votes cast against the player, and:
-
-$$
-D(v)=
-\begin{cases}
-W_g & \text{if } v \text{ was cast during the current turn},\\
-0.5^{\Delta(v)} & \text{otherwise}.
-\end{cases}
-$$
-
-Here, $\Delta(v)$ is the number of turns elapsed since vote $v$ was cast, and $W_g$ is `GRUDGE_IMMEDIATE_WEIGHT`.
-
-This gives immediate weight to a fresh vote, allowing it to influence decisions such as the Hunter's revenge shot. Older grudges naturally fade over time.
-
-### Co-vote association
-
-The simulator also tracks how often pairs of players vote for the same target. This co-vote score is updated using an exponential moving average:
-
-$$C = (1-\beta)C + \beta M$$
-
-where:
-* $M=1$ if both players voted for the same target ;
-* $M=0$ otherwise.
-
-When a Werewolf dies and their role is revealed, players who frequently voted alongside that Werewolf become more suspicious to the rest of the village. The suspicion update is:
-
-$$
-S = \max(0, \min(1, S + (C - T)W))
+S_{ij}(t)=P\left(W_j \mid \mathcal I_i(t)\right)
 $$
 
 where:
-* $T$ is the association threshold ;
-* $W$ is the association weight.
 
-This association effect is applied only when the dead player is a Werewolf. By contrast, the death of a Villager has no effect on the suspicion associated with players who frequently voted alongside them.
+* $i$ is the observing player ;
+* $j$ is the player whose role is being evaluated ;
+* $W_j$ is the event "player $j$ is a Werewolf" ;
+* $\mathcal I_i(t)$ is the set of information observed by player $i$ up to time $t$.
 
-### Final vote
+The diagonal coefficients $S_{ii}(t)$ are not defined, since a player does not estimate the probability of their own role. In practice, they are ignored in calculations and voting mechanics.
 
-The final accusation score combines rational suspicion and emotional grudge:
 
-$$A = \max(0, \min(1, S + G))$$
+### Initial suspicion
 
-When voting, the simulator adds a small amount of randomness to avoid fully deterministic decisions:
+A game has $n$ total players and $w$ Werewolves. Before any other information is observed, every player $j\ne i$ is symmetric from player $i$'s point of view. The initial suspicion is therefore:
 
-$$V = A + \epsilon \times N$$
+$$
+S_{ij}(0)=\frac{w}{n-1}
+$$
 
-where:
-* $N$ is `VOTE_NOISE` ;
-* $\epsilon$ is a random value between $0$ and $1$.
+### Bayesian suspicion update
 
-Each player votes for the alive candidate with the highest accusation score. The player with the most votes is eliminated.
+The informative effect of observation $I$ is represented by its likelihood ratio:
+
+$$
+\Lambda_I=
+\frac{P(I\mid W_j)}
+{P(I\mid \overline{W_j})}
+$$
+
+The likelihood ratio measures how strongly observation $I$ favors the hypothesis that $j$ is a Werewolf over the hypothesis that $j$ is not a Werewolf:
+
+* if $\Lambda_I>1$, the observation increases suspicion toward $j$ ;
+* if $\Lambda_I<1$, the observation decreases suspicion toward $j$ ;
+* if $\Lambda_I=1$, the observation provides no information about $j$'s role.
 
 > [!NOTE]
-> Special roles can also influence this model by introducing a notion of certainty. Unlike regular players, they can obtain reliable information that directly affects their voting behavior. For example, the Seer can lock a suspicion value after discovering a player's role.
+> When player $i$ observes a new piece of information $I$ about player $j$, the current suspicion value $S_{ij}(t)$ is the prior probability that $j$ is a Werewolf.
 
-### Role reveal effects
-
-When the village eliminates a player, that player's role is revealed and produces a character value:
+The suspicion is updated as:
 
 $$
-R = V_{role} + V_{sheriff}
+S_{ij}(t+1)=
+\frac{\Lambda_I S_{ij}(t)}
+{1-S_{ij}(t)+\Lambda_I S_{ij}(t)}
 $$
 
-where:
-* $V_{role}$ is the eliminated player's role value ;
-* $V_{sheriff}$ is added only if the eliminated player was the Sheriff.
-
-The players who announced the eliminated player during the intention phase are treated as accusation leaders. Their `convince` changes according to the revealed value:
+This update is equivalent to classic Bayes' rule:
 
 $$
-C_{new} = C_{old} - R \times W_c
+S_{ij}(t+1)=
+\frac{P(I\mid W_j)S_{ij}(t)}
+{P(I\mid W_j)S_{ij}(t)+P(I\mid \overline{W_j})(1-S_{ij}(t))}
 $$
 
-where $W_c$ is `CONVINCE_ROLE_VALUE_WEIGHT`.
+Dividing the numerator and denominator by $P(I\mid \overline{W_j})$ gives the likelihood-ratio form used by the simulator.
 
-This means leaders gain convince when the village eliminates a Werewolf, because Werewolves have a negative role value. By contrast, they lose convince when the village eliminates an innocent role, with stronger losses for more valuable roles.
+### Debate phase
 
-The final voters are also judged by the rest of the village. Every living observer updates their suspicion toward each player who voted for the eliminated target:
+The debate phase allows players to exchange information and influence one another's beliefs before the daytime vote.
+
+Each debate phase consists of a variable number of actions, following a Poisson distribution:
 
 $$
-S_{new} = \max(0, \min(1, S_{old} + R \times W_s))
+N_{\text{actions}}
+\sim
+\mathcal{P}(\lambda),
 $$
 
-where $W_s$ is `SUSPICION_ROLE_VALUE_WEIGHT`.
+where $\lambda>0$ is the expected number of actions during one debate phase.
 
-This means voting to eliminate an innocent player makes a voter more suspicious, while voting to eliminate a Werewolf makes them less suspicious.
+At each action, the next speaker $a$ is sampled from the set of alive players $\mathcal{V}(t)$, with probability proportional to their participation parameter $\eta_a>0$:
+
+$$
+P(a\text{ speaks})
+=
+\frac{\eta_a}
+{\displaystyle\sum_{k \in \mathcal{V}(t)}\eta_k}.
+$$
+
+The parameter $\eta_a$ represents player $a$'s tendency to participate in the debate. The larger it is relative to the other alive players' participation parameters, the more likely player $a$ is to speak.
+
+Once selected as the speaker, player $a$ performs a random action from the following action set:
+
+$$
+A_a
+\in
+\left\{
+\text{accuse},
+\text{defend},
+\text{follow},
+\text{stay silent}
+\right\}.
+$$
+
+The probability distribution of $A_a$ depends on the speaker's role. These probabilities are behavioral parameters of the model. They do not necessarily describe optimal play; instead, they encode different tendencies depending on the player's role. They can be adjusted to simulate different Villager profiles or different Werewolf strategies.
+
+### Information propagation
+
+Each observable action is treated as new public information. When player $a$ performs an action $A_a$, possibly directed at player $k$, each observer $i$ may update their beliefs about:
+
+* the role of the acting player $a$;
+* the role of the target $k$.
+
+The suspicion toward the acting player $a$ is updated directly using Bayes’ rule.
+
+For the target $k$, however, the informational value of the action depends on how much observer $i$ trusts player $a$. We define this trust as the probability that $a$ is not a werewolf:
+
+$$
+T_{ia}(t) = P(\overline{W}_a \mid \mathcal I_i(t)) = 1 - S_{ia}(t)
+$$
+
+We denote by $\Lambda_{A_a \to k}$ the effect of action $A_a$ on the suspicion toward player $k$. This effect is adjusted according to the level of trust placed in player $a$:
+
+$$
+\widetilde{\Lambda}_{A_a \to k} = \Lambda_{A_a \to k}^{T_{ia}(t)}
+$$
+
+This transformation preserves the direction of the information while scaling its strength according to the credibility of its source:
+
+* if $T_{ia}(t)=1$, then $\widetilde{\Lambda}_{A_a \to k}=\Lambda_{A_a \to k}$: the information is fully trusted;
+* if $0<T_{ia}(t)<1$, the effect of the information is attenuated;
+* if $T_{ia}(t)=0$, then $\widetilde{\Lambda}_{A_a \to k}=1$: the action has no effect on the belief about $k$.
+
+The suspicion toward the target is then updated as:
+
+$$
+S_{ik}(t+1) = \frac{
+\widetilde{\Lambda}_{A_a \to k} S_{ik}(t)
+}{
+1 - S_{ik}(t)
++
+\widetilde{\Lambda}_{A_a \to k} S_{ik}(t)
+}
+$$
+
+### Vote
+
+At the end of the debate phase, each player $i$ chooses a target among the other players who are still alive. The probability that player $i$ votes against player $j$ is determined by the suspicion score $S_{ij}(t)$:
+
+$$
+P(i \to j)
+=
+\frac{S_{ij}^{\beta_i}}
+{\displaystyle\sum_{\substack{k \in \mathcal{V}{(t)}\\ k \ne i}} S_{ik}^{\beta_i}}
+$$
+
+The player with the most votes is eliminated.
 
 ## 📄 License
 

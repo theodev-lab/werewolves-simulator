@@ -1,5 +1,3 @@
-import random
-
 from game import texts
 from roles.base import Role
 from roles.villager import Villager
@@ -16,7 +14,7 @@ class Thief(Role):
         if not all(role.camp == texts.WOLVES for role in game.remaining_roles):
             choices.append(None)
 
-        chosen_role_index = random.choice(choices)
+        chosen_role_index = game.rng.choice(choices)
 
         if chosen_role_index is None:
             player.role = Villager()

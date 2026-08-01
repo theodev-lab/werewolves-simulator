@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 ROLE_COUNTS = {
     "thief": 1,
     "cupid": 1,
@@ -11,21 +9,9 @@ ROLE_COUNTS = {
     "hunter": 1
 }
 
-@dataclass(frozen=True)
-class SimulationParameters:
-    alpha: float = 0.15
-    vote_noise: float = 0.2
-    grudge_immediate_weight: float = 0.5
-    co_vote_beta: float = 0.3
-    co_vote_association_threshold: float = 0.6
-    co_vote_association_weight: float = 0.4
-    convince_role_value_weight: float = 0.1
-    suspicion_role_value_weight: float = 0.1
-    wolf_to_wolf_suspicion_resistance: float = 0.15
-    hunter_shot_threshold: float = 0.5
-    witch_kill_threshold: float = 0.5
-
-DEFAULT_PARAMETERS = SimulationParameters()
-USE_SHERIFF = 1
-N_GAMES = 1
+N_GAMES = 1000
 SEED = 42
+DEBATE_ACTIONS_LAMBDA = 6.0
+HUNTER_SHOT_THRESHOLD = 0.5
+WITCH_KILL_THRESHOLD = 0.5
+USE_SHERIFF = 0

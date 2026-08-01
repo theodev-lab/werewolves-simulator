@@ -1,19 +1,19 @@
-import random
+import numpy as np
+
 from game.player import Player
 from game.suspicion import SuspicionManager
-from game.phases import get_most_convincing_candidates, night_phase, day_phase
+from game.phases import night_phase, day_phase
 from game import texts
-from roles import ROLE_MAP, Villager, Sheriff
-from config import DEFAULT_PARAMETERS, N_GAMES, USE_SHERIFF
+from roles import ROLE_MAP, Villager
+from config import N_GAMES
 
 class Game:
-	def __init__(self, role_counts, params=DEFAULT_PARAMETERS):
+	def __init__(self, role_counts, seed=None):
 		self.role_counts = role_counts
-		self.params = params
-		self.n_players = sum(role_counts.values())
+		self.rng = np.random.default_rng(seed)
 		self.players = self.init_players()
 		
-		self.suspicion = SuspicionManager(self.players, self.params)
+		self.suspicion = SuspicionManager(self.players)
 		
 		self.history = []
 		self.dead_this_night = []
@@ -35,31 +35,26 @@ class Game:
 		if self.role_counts.get("thief", 0) > 0:
 			roles_deck.extend([Villager() for _ in range(2)])
 		
-		random.shuffle(roles_deck)
+		self.rng.shuffle(roles_deck)
 
-		dealt_roles = roles_deck[:self.n_players]
-		self.remaining_roles = roles_deck[self.n_players:]
+		dealt_roles = roles_deck[:sum(self.role_counts.values())]
+		self.remaining_roles = roles_deck[sum(self.role_counts.values()):]
   
-		return [Player(i, role) for i, role in enumerate(dealt_roles)]
+		return [Player(i, role, self.rng) for i, role in enumerate(dealt_roles)]
 
 	def alive_players(self):
-		return [p for p in self.players if p.alive]
+		return [player for player in self.players if player.alive]
 
 	def set_lovers(self, first_lover, second_lover):
 		self.lovers = (first_lover, second_lover)
 
 	def get_lover(self, player):
-		if self.lovers is None:
+		if not self.lovers or player not in self.lovers:
 			return None
 
 		first_lover, second_lover = self.lovers
 
-		if player is first_lover:
-			return second_lover
-		elif player is second_lover:
-			return first_lover
-		else:
-			return None
+		return second_lover if player is first_lover else first_lover
 
 	def are_lovers(self, first_player, second_player):
 		return self.get_lover(first_player) is second_player
@@ -87,8 +82,8 @@ class Game:
 	
 	def is_over(self):
 		alive_players = self.alive_players()
-		n_wolves = sum(p.role.camp == texts.WOLVES and p.alive for p in self.players)
-		n_villagers = sum(p.role.camp == texts.VILLAGERS and p.alive for p in self.players)
+		n_wolves = sum(player.role.camp == texts.WOLVES and player.alive for player in self.players)
+		n_villagers = sum(player.role.camp == texts.VILLAGERS and player.alive for player in self.players)
 		
 		if len(alive_players) == 2 and self.are_lovers(alive_players[0], alive_players[1]):
 			return True, texts.LOVERS
@@ -102,9 +97,10 @@ class Game:
 	def play(self):
 		self.log(texts.GAME_START)
 		
-		if USE_SHERIFF == 1:
-			self.log(texts.SHERIFF_TURN)
-			Sheriff.elect(self, get_most_convincing_candidates(self.alive_players()))
+		# if USE_SHERIFF == 1:
+		#	self.log(texts.SHERIFF_TURN)
+		#	Sheriff.elect(self, get_most_convincing_candidates(self.alive_players()))
+		# TODO: il faudra revoir la mécanique d'élection du maire
 
 		while True:
 			self.current_day += 1

@@ -3,7 +3,6 @@ from roles.base import Role
 
 class LittleGirl(Role):
     camp = texts.VILLAGERS
-    character_value = 3
 
     def on_night(self, game, player):
         if game.current_day != 1:

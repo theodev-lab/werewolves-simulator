@@ -3,7 +3,6 @@ from roles.base import Role
 
 class Seer(Role):
     camp = texts.VILLAGERS
-    character_value = 7
 
     def on_night(self, game, player):
         game.log(texts.SEER_TURN)
@@ -13,8 +12,8 @@ class Seer(Role):
         if not candidates:
             return
 
-        accusation_scores = game.suspicion.get_accusation_scores(player.id)
-        target = max(candidates, key=lambda candidate: accusation_scores[candidate.id])
+        suspicion_scores = game.suspicion.get_suspicion_scores(player.id)
+        target = max(candidates, key=lambda candidate: suspicion_scores[candidate.id])
 
         game.log(texts.SERVER_SEER_SPY.format(target_id=target.id, role_name=target.role.__class__.__name__))
 

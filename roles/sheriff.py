@@ -1,19 +1,16 @@
-import random
-
 from roles.base import Role
 from game import texts
 
 class Sheriff(Role):
-    character_value = 2
     vote_weight = 2
 
     @classmethod
     def choose_candidate_for_voter(cls, game, voter, candidates):
-        suspicion_scores = game.suspicion.get_accusation_scores(voter.id)
+        suspicion_scores = game.suspicion.get_suspicion_scores(voter.id)
         lowest_suspicion = min(suspicion_scores[candidate.id] for candidate in candidates)
         least_suspicious_candidates = [candidate for candidate in candidates if suspicion_scores[candidate.id] == lowest_suspicion]
 
-        return random.choice(least_suspicious_candidates)
+        return game.rng.choice(least_suspicious_candidates)
 
     @classmethod
     def elect(cls, game, candidates):
@@ -26,7 +23,7 @@ class Sheriff(Role):
 
         max_votes = max(vote_counts.values())
         tied_candidate_ids = [candidate_id for candidate_id, votes in vote_counts.items() if votes == max_votes]
-        sheriff_id = random.choice(tied_candidate_ids)
+        sheriff_id = game.rng.choice(tied_candidate_ids)
 
         game.sheriff = game.players[sheriff_id]
         game.sheriff.vote_weight = cls.vote_weight
