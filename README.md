@@ -234,7 +234,7 @@ $$
 P(i \to j)
 =
 \frac{S_{ij}^{\beta_i}}
-{\displaystyle\sum_{\substack{k \in \mathcal{V}{(t)}\\ k \ne i}} S_{ik}^{\beta_i}}
+{\displaystyle\sum_{\substack{k \in \mathcal{V}(t)\\ k \ne i}} S_{ik}^{\beta_i}}
 $$
 
 The player with the most votes is eliminated.
