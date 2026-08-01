@@ -177,7 +177,13 @@ The parameter $\eta_a$ represents player $a$'s tendency to participate in the de
 Once selected as the speaker, player $a$ performs a random action from the following action set:
 
 $$
-A_a \in \{\text{accuse},\text{defend},\text{follow},\text{stay silent}\}.
+A_a \in
+\left\lbrace
+\text{accuse},
+\text{defend},
+\text{follow},
+\text{stay silent}
+\right\rbrace.
 $$
 
 The probability distribution of $A_a$ depends on the speaker's role. These probabilities are behavioral parameters of the model. They do not necessarily describe optimal play; instead, they encode different tendencies depending on the player's role. They can be adjusted to simulate different Villager profiles or different Werewolf strategies.
