@@ -169,10 +169,7 @@ where $\lambda>0$ is the expected number of actions during one debate phase.
 At each action, the next speaker $a$ is sampled from the set of alive players $\mathcal{V}(t)$, with probability proportional to their participation parameter $\eta_a>0$:
 
 $$
-P(a\text{ speaks})
-=
-\frac{\eta_a}
-{\sum_{k \in \mathcal{V}(t)} \eta_k}
+P(a\text{ speaks}) = \frac{\eta_a}{\displaystyle\sum_{k \in \mathcal{V}(t)}\eta_k}.
 $$
 
 The parameter $\eta_a$ represents player $a$'s tendency to participate in the debate. The larger it is relative to the other alive players' participation parameters, the more likely player $a$ is to speak.
@@ -180,12 +177,12 @@ The parameter $\eta_a$ represents player $a$'s tendency to participate in the de
 Once selected as the speaker, player $a$ performs a random action from the following action set:
 
 $$
-A_a \in \left\{
+A_a \in \{
 \text{accuse},
 \text{defend},
 \text{follow},
 \text{stay silent}
-\right\}.
+\}.
 $$
 
 The probability distribution of $A_a$ depends on the speaker's role. These probabilities are behavioral parameters of the model. They do not necessarily describe optimal play; instead, they encode different tendencies depending on the player's role. They can be adjusted to simulate different Villager profiles or different Werewolf strategies.
