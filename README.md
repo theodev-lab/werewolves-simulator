@@ -183,7 +183,7 @@ A_a \in
 \text{defend},
 \text{follow},
 \text{stay silent}
-\right\rbrace.
+\right\rbrace
 $$
 
 The probability distribution of $A_a$ depends on the speaker's role. These probabilities are behavioral parameters of the model. They do not necessarily describe optimal play; instead, they encode different tendencies depending on the player's role. They can be adjusted to simulate different Villager profiles or different Werewolf strategies.
@@ -211,7 +211,7 @@ $$
 
 This transformation preserves the direction of the information while scaling its strength according to the credibility of its source:
 
-* if $T_{ia}(t)=1$, then $\widetilde{\Lambda}_{A_a \to k}=\Lambda_{A_a \to k}$: the information is fully trusted;
+* if $T_{ia}(t)=1$, then $\widetilde{\Lambda}_{A_a \to k} = \Lambda_{A_a \to k}$: the information is fully trusted;
 * if $0<T_{ia}(t)<1$, the effect of the information is attenuated;
 * if $T_{ia}(t)=0$, then $\widetilde{\Lambda}_{A_a \to k}=1$: the action has no effect on the belief about $k$.
 
