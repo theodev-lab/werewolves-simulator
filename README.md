@@ -172,7 +172,7 @@ $$
 P(a\text{ speaks})
 =
 \frac{\eta_a}
-{\displaystyle\sum_{k \in \mathcal{V}(t)}\eta_k}.
+{\sum_{k \in \mathcal{V}(t)} \eta_k}
 $$
 
 The parameter $\eta_a$ represents player $a$'s tendency to participate in the debate. The larger it is relative to the other alive players' participation parameters, the more likely player $a$ is to speak.
@@ -180,9 +180,7 @@ The parameter $\eta_a$ represents player $a$'s tendency to participate in the de
 Once selected as the speaker, player $a$ performs a random action from the following action set:
 
 $$
-A_a
-\in
-\left\{
+A_a \in \left\{
 \text{accuse},
 \text{defend},
 \text{follow},
