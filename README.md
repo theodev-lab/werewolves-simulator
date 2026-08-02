@@ -231,12 +231,7 @@ $$
 At the end of the debate phase, each player $i$ chooses a target among the other players who are still alive. The probability that player $i$ votes against player $j$ is determined by the suspicion score $S_{ij}(t)$:
 
 $$
-P(i \to j)
-=
-\frac{S_{ij}^{\beta_i}}
-{\displaystyle
-\sum_{k \in \mathcal{V}(t)\setminus\lbrace i\rbrace}
-S_{ik}^{\beta_i}}
+P(i \to j)=\frac{S_{ij}^{\beta_i}}{\displaystyle\sum_{k \in \mathcal{V}(t)\setminus\lbrace i\rbrace}S_{ik}^{\beta_i}}
 $$
 
 The player with the most votes is eliminated.
