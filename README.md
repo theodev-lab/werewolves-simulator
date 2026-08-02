@@ -82,8 +82,8 @@ The simulator focuses mainly on voting dynamics. Each player has two behavioral 
 $$\beta_i \sim \Gamma(4, 0.5)$$
 
 where $\beta_i > 0$ controls how sharply player $i$ follows their suspicion scores :
-* low $\beta_i$ makes votes close to random ;
-* high $\beta_i$ makes player $i$ vote almost always against their most suspicious target.
+- low $\beta_i$ makes votes close to random ;
+- high $\beta_i$ makes player $i$ vote almost always against their most suspicious target.
 
 Each player also has a participation parameter:
 
@@ -99,13 +99,12 @@ $$
 
 where:
 
-* $i$ is the observing player ;
-* $j$ is the player whose role is being evaluated ;
-* $W_j$ is the event "player $j$ is a Werewolf" ;
-* $\mathcal I_i(t)$ is the set of information observed by player $i$ up to time $t$.
+- $i$ is the observing player ;
+- $j$ is the player whose role is being evaluated ;
+- $W_j$ is the event "player $j$ is a Werewolf" ;
+- $\mathcal I_i(t)$ is the set of information observed by player $i$ up to time $t$.
 
 The diagonal coefficients $S_{ii}(t)$ are not defined, since a player does not estimate the probability of their own role. In practice, they are ignored in calculations and voting mechanics.
-
 
 ### Initial suspicion
 
@@ -127,9 +126,9 @@ $$
 
 The likelihood ratio measures how strongly observation $I$ favors the hypothesis that $j$ is a Werewolf over the hypothesis that $j$ is not a Werewolf:
 
-* if $\Lambda_I>1$, the observation increases suspicion toward $j$ ;
-* if $\Lambda_I<1$, the observation decreases suspicion toward $j$ ;
-* if $\Lambda_I=1$, the observation provides no information about $j$'s role.
+- if $\Lambda_I>1$, the observation increases suspicion toward $j$ ;
+- if $\Lambda_I<1$, the observation decreases suspicion toward $j$ ;
+- if $\Lambda_I=1$, the observation provides no information about $j$'s role.
 
 > [!NOTE]
 > When player $i$ observes a new piece of information $I$ about player $j$, the current suspicion value $S_{ij}(t)$ is the prior probability that $j$ is a Werewolf.
@@ -192,8 +191,8 @@ The probability distribution of $A_a$ depends on the speaker's role. These proba
 
 Each observable action is treated as new public information. When player $a$ performs an action $A_a$, possibly directed at player $k$, each observer $i$ may update their beliefs about:
 
-* the role of the acting player $a$;
-* the role of the target $k$.
+- the role of the acting player $a$;
+- the role of the target $k$.
 
 The suspicion toward the acting player $a$ is updated directly using Bayes’ rule.
 
@@ -211,9 +210,9 @@ $$
 
 This transformation preserves the direction of the information while scaling its strength according to the credibility of its source:
 
-* if $T_{ia}(t)=1$, then $\widetilde{\Lambda}_{A_a \to k} = \Lambda_{A_a \to k}$: the information is fully trusted;
-* if $0<T_{ia}(t)<1$, the effect of the information is attenuated;
-* if $T_{ia}(t)=0$, then $\widetilde{\Lambda}_{A_a \to k}=1$: the action has no effect on the belief about $k$.
+- if $`T_{ia}(t)=1`$, then $`\widetilde{\Lambda}_{A_a \to k} = \Lambda_{A_a \to k}`$: the information is fully trusted;
+- if $`0<T_{ia}(t)<1$`, the effect of the information is attenuated;
+- if $`T_{ia}(t)=0`$, then $`\widetilde{\Lambda}_{A_a \to k}=1`$: the action has no effect on the belief about $k$.
 
 The suspicion toward the target is then updated as:
 
