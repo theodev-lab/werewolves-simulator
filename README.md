@@ -210,9 +210,9 @@ $$
 
 This transformation preserves the direction of the information while scaling its strength according to the credibility of its source:
 
-- if $`T_{ia}(t)=1`$, then $`\widetilde{\Lambda}_{A_a \to k} = \Lambda_{A_a \to k}`$: the information is fully trusted;
-- if $`0<T_{ia}(t)<1$`, the effect of the information is attenuated;
-- if $`T_{ia}(t)=0`$, then $`\widetilde{\Lambda}_{A_a \to k}=1`$: the action has no effect on the belief about $k$.
+- if $`T_{ia}(t)=1`$, then $`\widetilde{\Lambda}_{A_a \to k} = \Lambda_{A_a \to k}`$ : the information is fully trusted;
+- if $`0<T_{ia}(t)<1`$, the effect of the information is attenuated;
+- if $`T_{ia}(t)=0`$, then $`\widetilde{\Lambda}_{A_a \to k}=1`$ : the action has no effect on the belief about $k$.
 
 The suspicion toward the target is then updated as:
 
