@@ -14,12 +14,17 @@ DEAD_PLAYER = "le joueur {player_id} ({role_name})"
 DEAD_PLAYERS_JOIN = "{players} et {last_player}"
 LOVER_GRIEF = "🪦 Dans un élan de chagrin, le joueur {lover_id} ({role_name}), a décidé de rejoindre le joueur {dead_id} dans sa tombe."
 DAY_NO_DEATH = "☀️ Le village se réveille et personne n'est mort pendant la nuit !"
+
 # Le débat a influencé les suspicions des joueurs de x % + actions + égalité + supprimer les villageois vont pouvoir élire leur maire ? emoji tombe élimination par village
 # bug d'affichage: 🪦 Dans un élan de chagrin, le joueur 8 (Villager), a décidé de rejoindre le joueur 6 dans sa tombe.
 # ☀️ Le village se réveille sans... le joueur 6 (Villager) et le joueur 8 (Villager).
 # 🗳️ Le village a décidé d'éliminer le joueur 12 (Hunter).
-SHERIFF_TURN = "🗳️ Les villageois vont pouvoir élire leur maire."
-SHERIFF_ELECTED = "🎖️ Le joueur {sheriff_id} a été élu maire du village."
+# rajouter des informations publiques
+
+VOTE_NO_ELIMINATION = "🗳️ Le village n'a pas réussi à se mettre d'accord sur un joueur à éliminer."
+SHERIFF_KILL = "⚖️ Le maire a décidé d'éliminer le joueur {target_id} ({role_name})."
+SHERIFF_NO_KILL = "⚖️ Le maire a décidé de n'éliminer personne."
+SHERIFF_ELECTED = "🎖️ Le joueur {player_id} a été élu maire du village."
 SHERIFF_SUCCESSOR = "🎖️ Le joueur {player_id} a été désigné comme nouveau maire du village."
 VOTE_ELIMINATION = "🗳️ Le village a décidé d'éliminer le joueur {target_id} ({role_name})."
 HUNTER_SHOT = "🎯 PAN ! Le chasseur a décidé d'exécuter le joueur {target_id} ({role_name})."

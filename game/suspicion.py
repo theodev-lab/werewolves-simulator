@@ -17,6 +17,9 @@ class SuspicionManager:
         return 1 - self.suspicion[player_id]
 
     def lock_cell(self, observer_id, target_id, value):
+        if self.locked[observer_id][target_id]:
+            return
+
         self.suspicion[observer_id][target_id] = value
         self.locked[observer_id][target_id] = True
 

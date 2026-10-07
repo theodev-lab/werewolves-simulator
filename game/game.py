@@ -97,11 +97,6 @@ class Game:
 	def play(self):
 		self.log(texts.GAME_START)
 		
-		# if USE_SHERIFF == 1:
-		#	self.log(texts.SHERIFF_TURN)
-		#	Sheriff.elect(self, get_most_convincing_candidates(self.alive_players()))
-		# TODO: il faudra revoir la mécanique d'élection du maire
-
 		while True:
 			self.current_day += 1
 

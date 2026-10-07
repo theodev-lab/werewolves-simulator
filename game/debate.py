@@ -44,11 +44,13 @@ def propagate_information(game, speaker, action, target=None):
             game.suspicion.suspicion_update(player.id, speaker.id, game.suspicion.compute_likelihood_ratio(ACTIONS[action]))
 
             # Update suspicion toward the target if applicable
-            if action != "stay_silent":
+            if action != "stay_silent" and target is not speaker:
                 game.suspicion.suspicion_update(player.id, target.id, game.suspicion.compute_likelihood_ratio(TARGET_ACTIONS[action]) ** game.suspicion.get_trust_scores(player.id)[speaker.id])
 
 def debate_phase(game):
     action_count = get_action_count(game)
+
+    accusations = {}
 
     for _ in range(action_count):
         speaker = get_next_speaker(game)
@@ -57,14 +59,24 @@ def debate_phase(game):
             break
 
         action = choose_action(game, speaker)
+        lover = game.get_lover(speaker)
+        target = None
 
-        if action == "stay_silent":
-            target = None
-        else:
-            mode = "least_suspicious" if action == "defend" else "most_suspicious"
-            target = speaker.choose_target(game, game.suspicion.get_suspicion_scores(speaker.id), mode=mode)
+        if action == "accuse":
+            candidates = [player for player in game.alive_players() if player is not speaker and player is not lover]
+            target = speaker.choose_by_suspicion(game, candidates)
 
-            if target is None:
-                continue
+            if target is not None:
+                accusations[speaker] = target
+        elif action == "defend":
+            candidates = [player for player in game.alive_players() if player in accusations.values()]
+            target = speaker.choose_by_trust(game, candidates, on_zero="abstain")
+        elif action == "follow":
+            candidates = [author for author, accused in accusations.items() if author is not speaker and author.alive and accused.alive and accused is not speaker and accused is not lover]
+            author = speaker.choose_by_trust(game, candidates, on_zero="abstain")
+            target = accusations.get(author)
+
+        if target is None and action != "stay_silent":
+            continue
 
         propagate_information(game, speaker, action, target)

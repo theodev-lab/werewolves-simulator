@@ -6,7 +6,6 @@ from roles.little_girl import LittleGirl
 from roles.thief import Thief
 from roles.cupid import Cupid
 from roles.witch import Witch
-from roles.sheriff import Sheriff
 
 ROLE_MAP = {
     "villager": Villager,
