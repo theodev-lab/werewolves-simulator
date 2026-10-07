@@ -95,7 +95,7 @@ Candidates vote for themselves. Other players favor candidates they trust. Given
 
 $$
 P(i\to j\mid i\text{ votes})=
-\frac{(1-S_{ij})^{\beta_i}}{\sum_{k\in C}(1-S_{ik})^{\beta_i}}
+\frac{(1-S_{ij})^{\beta_i}}{\displaystyle\sum_{k\in C}(1-S_{ik})^{\beta_i}}
 $$
 
 Here, $S_{ij}$ is suspicion and $\beta_i$ controls how strongly the voter favors trusted candidates. A voter who trusts no candidate abstains. Each ballot counts once; the candidate with the most votes wins, with random selection among tied leaders.
