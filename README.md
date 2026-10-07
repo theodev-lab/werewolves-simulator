@@ -63,7 +63,21 @@ Set a role count to `0` to disable that role. When the Thief is enabled, two ext
 | `USE_SHERIFF` | Enables the sheriff election mechanic. Set to `0` to disable it, or `1` to elect a sheriff on the first day. |
 | `USE_HESITATION` | Set to `1` to let players hesitate and sometimes leave an action without a target. Disabled by default (`0`). |
 
-### Sheriff election and succession
+## 🎭 Roles
+
+| Player card | Faction | Role |
+| --- | --- | --- |
+| <img src="assets/cards/villager.jpg" alt="Villager card" width="100"> | Villagers | **Villager**: Their objective is to eliminate every Werewolf. They have no special power and must rely solely on their insight and powers of persuasion. |
+| <img src="assets/cards/wolf.jpg" alt="Werewolf card" width="100"> | Werewolves | **Werewolf**: Their objective is to eliminate every innocent player, meaning anyone who is not a Werewolf. Each night, the Werewolves choose a victim to eliminate. |
+| <img src="assets/cards/seer.jpg" alt="Seer card" width="100"> | Villagers | **Seer**: Her objective is to eliminate every Werewolf. Each night, she may inspect a player and discover their true identity. |
+| <img src="assets/cards/little_girl.jpg" alt="Little Girl card" width="100"> | Villagers | **Little Girl**: Her objective is to eliminate every Werewolf. Each night, she may spy on the Werewolves. |
+| <img src="assets/cards/witch.jpg" alt="Witch card" width="100"> | Villagers | **Witch**: Her objective is to eliminate every Werewolf. She has two potions: a life potion that can save the Werewolves' victim and a death potion that can eliminate another player. |
+| <img src="assets/cards/hunter.jpg" alt="Hunter card" width="100"> | Villagers | **Hunter**: Their objective is to eliminate every Werewolf. When they die, they may eliminate another player with their final bullet. |
+| <img src="assets/cards/cupid.jpg" alt="Cupid card" width="100"> | Villagers | **Cupid**: Their objective is to eliminate every Werewolf. At the beginning of the game, they create a couple. The two lovers must survive together: if one dies, the other dies of grief. |
+| <img src="assets/cards/thief.jpg" alt="Thief card" width="100"> | Variable | **Thief**: Their objective is not fixed. At the beginning of the game, they may choose their role from the two cards that were not dealt. |
+| <img src="assets/cards/sheriff.jpg" alt="Sheriff card" width="100"> | Special mechanic | **Sheriff**: If enabled, the village elects a sheriff on the first day before the first elimination vote. The sheriff keeps their original role, and their vote counts double during each elimination vote. In case of a tie, the sheriff decides which tied player is eliminated. |
+
+## 🎖️ Sheriff election and succession
 
 The election takes place after the first day's debate, before the elimination vote.
 
@@ -87,20 +101,6 @@ $$
 Here, $S_{ij}$ is suspicion and $\beta_i$ controls how strongly the voter favors trusted candidates. A voter who trusts no candidate abstains. Each ballot counts once; the candidate with the most votes wins, with random selection among tied leaders.
 
 The sheriff keeps their role, has a double elimination vote and breaks elimination ties according to suspicion, excluding themselves and their lover. If they cannot choose a target, nobody is eliminated. After all chained deaths are resolved, a dead sheriff chooses a surviving successor according to trust, without hesitation (randomly if all trust scores are zero).
-
-## 🎭 Roles
-
-| Player card | Faction | Role |
-| --- | --- | --- |
-| <img src="assets/cards/villager.jpg" alt="Villager card" width="100"> | Villagers | **Villager**: Their objective is to eliminate every Werewolf. They have no special power and must rely solely on their insight and powers of persuasion. |
-| <img src="assets/cards/wolf.jpg" alt="Werewolf card" width="100"> | Werewolves | **Werewolf**: Their objective is to eliminate every innocent player, meaning anyone who is not a Werewolf. Each night, the Werewolves choose a victim to eliminate. |
-| <img src="assets/cards/seer.jpg" alt="Seer card" width="100"> | Villagers | **Seer**: Her objective is to eliminate every Werewolf. Each night, she may inspect a player and discover their true identity. |
-| <img src="assets/cards/little_girl.jpg" alt="Little Girl card" width="100"> | Villagers | **Little Girl**: Her objective is to eliminate every Werewolf. Each night, she may spy on the Werewolves. |
-| <img src="assets/cards/witch.jpg" alt="Witch card" width="100"> | Villagers | **Witch**: Her objective is to eliminate every Werewolf. She has two potions: a life potion that can save the Werewolves' victim and a death potion that can eliminate another player. |
-| <img src="assets/cards/hunter.jpg" alt="Hunter card" width="100"> | Villagers | **Hunter**: Their objective is to eliminate every Werewolf. When they die, they may eliminate another player with their final bullet. |
-| <img src="assets/cards/cupid.jpg" alt="Cupid card" width="100"> | Villagers | **Cupid**: Their objective is to eliminate every Werewolf. At the beginning of the game, they create a couple. The two lovers must survive together: if one dies, the other dies of grief. |
-| <img src="assets/cards/thief.jpg" alt="Thief card" width="100"> | Variable | **Thief**: Their objective is not fixed. At the beginning of the game, they may choose their role from the two cards that were not dealt. |
-| <img src="assets/cards/sheriff.jpg" alt="Sheriff card" width="100"> | Special mechanic | **Sheriff**: If enabled, the village elects a sheriff on the first day before the first elimination vote. The sheriff keeps their original role, and their vote counts double during each elimination vote. In case of a tie, the sheriff decides which tied player is eliminated. |
 
 ## 🗳️ Voting and behavior model
 
@@ -224,11 +224,13 @@ P(i\text{ acts})=\max_{j\in C}q_{ij},
 P(i\text{ abstains})=1-\max_{j\in C}q_{ij}
 $$
 
-The score $q_{ij}$ is suspicion $S_{ij}$ for accusations, elimination votes and sheriff tie-breaking; it is trust $1-S_{ij}$ for defense, following an accuser and election ballots.
+The score $q_{ij}$ is :
+* suspicion $S_{ij}$ for accusations, elimination votes and sheriff tie-breaking ; 
+* trust $1-S_{ij}$ for defense, following an accuser and election ballots.
 
 For example, if the most suspicious target has a score of 0.6, the player has a 60% chance of acting and a 40% chance of abstaining. If they act, they choose a target with the usual weights $q_{ij}^{\beta_i}$. An abandoned debate action has no effect on suspicions.
 
-This hesitation does not apply to candidates voting for themselves, sheriff succession or role powers. With no eligible target, the player cannot act; with only zero scores, the choices listed above result in abstention.
+This hesitation does not apply to candidates voting for themselves, sheriff succession or role powers. With no eligible target (with only zero scores), the player cannot act and the choices listed above result in abstention.
 
 ### Information propagation
 
